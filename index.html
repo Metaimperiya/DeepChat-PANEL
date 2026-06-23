@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DeepChat · Главная панель</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 16px;
+        }
+
+        /* ===== ШАПКА ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #0f0f18;
+            border-radius: 16px;
+            border: 1px solid #1a1a1a;
+            margin-bottom: 20px;
+        }
+        .header .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            cursor: pointer;
+        }
+        .header .logo span { color: #1877f2; }
+        .header .logo .badge {
+            font-size: 0.55rem;
+            background: #1877f2;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1a1a2a;
+            padding: 4px 12px 4px 4px;
+            border-radius: 40px;
+            border: 1px solid #2a2a2a;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .header .user-info:hover { border-color: #1877f2; }
+        .header .user-info .avatar { font-size: 1.6rem; line-height: 1; }
+        .header .user-info .name { font-size: 0.9rem; font-weight: 600; }
+        .header .user-info .edit-hint { font-size: 0.6rem; color: #666; }
+
+        /* ===== СТАТИСТИКА ===== */
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .stats .stat {
+            background: #0f0f18;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 10px 18px;
+            text-align: center;
+            flex: 1;
+            min-width: 80px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .stats .stat:hover { border-color: #1877f2; }
+        .stats .stat .num { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .stats .stat .label { font-size: 0.65rem; color: #666; }
+
+        /* ===== ВКЛАДКИ ===== */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .tabs .tab {
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid #2a2a2a;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tabs .tab:hover { border-color: #444; color: #fff; }
+        .tabs .tab.active { background: #1877f2; border-color: #1877f2; color: #fff; }
+        .tabs .tab .count {
+            background: rgba(255,255,255,0.15);
+            padding: 0 8px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            margin-left: 4px;
+        }
+
+        /* ===== КОНТЕНТ ===== */
+        .content {
+            background: #0f0f18;
+            border: 1px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 16px;
+            min-height: 300px;
+        }
+
+        /* ===== КАРТОЧКА КОМНАТЫ ===== */
+        .room-card {
+            background: #14141f;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: border-color 0.2s;
+        }
+        .room-card:hover { border-color: #1877f2; }
+        .room-card .room-info .room-name { font-weight: 600; font-size: 1rem; }
+        .room-card .room-info .room-site { font-size: 0.7rem; color: #666; }
+        .room-card .room-info .room-author { font-size: 0.7rem; color: #888; display: flex; align-items: center; gap: 4px; }
+        .room-card .room-status {
+            font-size: 0.6rem;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .room-card .room-status.approved {
+            background: rgba(24, 119, 242, 0.15);
+            color: #4a9eff;
+            border: 1px solid rgba(24, 119, 242, 0.2);
+        }
+        .room-card .room-status.pending {
+            background: rgba(255, 204, 0, 0.15);
+            color: #ffcc66;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+        }
+        .room-card .room-status.rejected {
+            background: rgba(255, 68, 68, 0.15);
+            color: #ff6666;
+            border: 1px solid rgba(255, 68, 68, 0.2);
+        }
+        .room-card .room-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .room-card .room-actions button {
+            padding: 4px 14px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .room-card .room-actions .btn-approve { background: #1877f2; color: #fff; }
+        .room-card .room-actions .btn-approve:hover { background: #4a9eff; }
+        .room-card .room-actions .btn-reject { background: #4a1a1a; color: #ff6666; }
+        .room-card .room-actions .btn-reject:hover { background: #6a1a1a; }
+        .room-card .room-actions .btn-enter { background: #2a2a2a; color: #fff; }
+        .room-card .room-actions .btn-enter:hover { background: #3a3a3a; }
+        .room-card .room-actions .btn-delete { background: #4a1a1a; color: #ff6666; }
+        .room-card .room-actions .btn-delete:hover { background: #6a1a1a; }
+
+        /* ===== МОДАЛКИ ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.open { display: flex; }
+        .modal .modal-box {
+            background: #1a1a2a;
+            padding: 24px;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid #333;
+        }
+        .modal .modal-box h3 { color: #fff; margin-bottom: 4px; }
+        .modal .modal-box .sub { color: #666; font-size: 0.85rem; margin-bottom: 14px; }
+        .modal .modal-box .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+            justify-content: center;
+        }
+        .modal .modal-box .emoji-grid span {
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .modal .modal-box .emoji-grid span:hover { border-color: #1877f2; }
+        .modal .modal-box .emoji-grid span.selected { border-color: #1877f2; background: rgba(24,119,242,0.1); }
+        .modal .modal-box input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        .modal .modal-box input:focus { border-color: #1877f2; }
+        .modal .modal-box .btns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .modal .modal-box .btns button {
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .modal .modal-box .btns .cancel { background: #2a2a2a; color: #aaa; }
+        .modal .modal-box .btns .cancel:hover { background: #3a3a3a; }
+        .modal .modal-box .btns .save { background: #1877f2; color: #fff; }
+        .modal .modal-box .btns .save:hover { background: #4a9eff; }
+        .modal .modal-box .room-create-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        .modal .modal-box .room-create-input:focus { border-color: #1877f2; }
+
+        /* ===== АДАПТИВ ===== */
+        @media (max-width: 640px) {
+            .header .logo { font-size: 1.1rem; }
+            .header .user-info .name { font-size: 0.8rem; }
+            .header .user-info .avatar { font-size: 1.3rem; }
+            .stats .stat .num { font-size: 1.2rem; }
+            .room-card { flex-direction: column; align-items: stretch; }
+            .room-card .room-actions { justify-content: flex-start; }
+        }
+        @media (max-width: 400px) {
+            body { padding: 8px; }
+            .header { padding: 8px 12px; }
+            .content { padding: 10px; }
+            .tabs .tab { font-size: 0.75rem; padding: 6px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== ШАПКА ===== -->
+    <div class="header">
+        <div class="logo" onclick="location.reload()">
+            Deep<span>Chat</span>
+            <span class="badge">PANEL</span>
+        </div>
+        <div class="user-info" id="dcUserInfo" onclick="dcOpenProfile()">
+            <span class="avatar" id="dcAvatar">👤</span>
+            <div>
+                <div class="name" id="dcUserName">Гость</div>
+                <div class="edit-hint">✏️ нажмите</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== СТАТИСТИКА ===== -->
+    <div class="stats">
+        <div class="stat" onclick="dcSwitchTab('all')">
+            <div class="num" id="dcTotalRooms">0</div>
+            <div class="label">Всего комнат</div>
+        </div>
+        <div class="stat" onclick="dcSwitchTab('pending')">
+            <div class="num" id="dcPendingRooms">0</div>
+            <div class="label">Ожидают</div>
+        </div>
+        <div class="stat" onclick="dcSwitchTab('my')">
+            <div class="num" id="dcSitesCount">0</div>
+            <div class="label">Сайтов</div>
+        </div>
+    </div>
+
+    <!-- ===== ВКЛАДКИ ===== -->
+    <div class="tabs">
+        <button class="tab active" data-tab="all" onclick="dcSwitchTab('all')">🌐 Все комнаты <span class="count" id="dcAllCount">0</span></button>
+        <button class="tab" data-tab="pending" onclick="dcSwitchTab('pending')">⏳ Ожидают <span class="count" id="dcPendingCount">0</span></button>
+        <button class="tab" data-tab="create" onclick="dcSwitchTab('create')">➕ Создать комнату</button>
+        <button class="tab" data-tab="my" onclick="dcSwitchTab('my')">📌 Мои комнаты <span class="count" id="dcMyCount">0</span></button>
+    </div>
+
+    <!-- ===== КОНТЕНТ ===== -->
+    <div class="content" id="dcContent">
+        <div style="text-align:center;color:#444;padding:40px 0;">Загрузка комнат...</div>
+    </div>
+
+    <!-- ===== МОДАЛКА ПРОФИЛЯ ===== -->
+    <div class="modal" id="dcProfileModal">
+        <div class="modal-box">
+            <h3>✏️ Редактировать профиль</h3>
+            <div class="sub">Выберите смайлик и измените имя</div>
+            <div class="emoji-grid" id="dcEmojiGrid"></div>
+            <input type="text" id="dcProfileNameInput" placeholder="Ваше имя...">
+            <div class="btns">
+                <button class="cancel" onclick="dcCloseProfile()">Отмена</button>
+                <button class="save" onclick="dcSaveProfile()">💾 Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛКА СОЗДАНИЯ КОМНАТЫ ===== -->
+    <div class="modal" id="dcCreateRoomModal">
+        <div class="modal-box">
+            <h3>📝 Создать комнату</h3>
+            <div class="sub">Введите название комнаты</div>
+            <input class="room-create-input" id="dcNewRoomName" placeholder="Название комнаты..." maxlength="30">
+            <div class="btns">
+                <button class="cancel" onclick="dcCloseCreateRoom()">Отмена</button>
+                <button class="save" onclick="dcSubmitRoom()">📤 Отправить</button>
+            </div>
+            <div style="margin-top:10px;font-size:0.7rem;color:#555;">Комната будет отправлена на одобрение админу</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ======  FIREBASE  ====== -->
+    <!-- ============================================================ -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+    // ================================================================
+    // ======  FIREBASE  ======
+    // ================================================================
+    const config = {
+        apiKey: "AIzaSyC81Ow4VPAUcaQGAuJjhtA-OaR8hyqxCtI",
+        authDomain: "mychatapp-2c141.firebaseapp.com",
+        databaseURL: "https://mychatapp-2c141-default-rtdb.firebaseio.com",
+        projectId: "mychatapp-2c141",
+        storageBucket: "mychatapp-2c141.firebasestorage.app",
+        messagingSenderId: "857322151793",
+        appId: "1:857322151793:web:387599e9e6f9cf1454a0d0"
+    };
+    firebase.initializeApp(config);
+    const DB = firebase.database();
+
+    // ================================================================
+    // ======  СОСТОЯНИЕ  ======
+    // ================================================================
+    const SITE_ID = window.location.hostname.replace(/\./g, '_') || 'default_site';
+
+    let USER = localStorage.getItem('dc_user_global') || '';
+    let USER_AVATAR = localStorage.getItem('dc_avatar_global') || '👤';
+    let IS_ADMIN = localStorage.getItem('dc_admin_global') === 'true';
+    let CURRENT_TAB = 'all';
+    let allRooms = [];
+    let pendingRooms = [];
+
+    // ===== ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
+    if (!USER) {
+        const nick = prompt('👤 Ваше имя:');
+        if (nick && nick.trim()) {
+            USER = nick.trim();
+            if (USER.length > 24) { alert('Слишком длинное'); }
+            localStorage.setItem('dc_user_global', USER);
+        }
+    }
+    dcUpdateUI();
+
+    // ================================================================
+    // ======  UI  ======
+    // ================================================================
+    function dcUpdateUI() {
+        document.getElementById('dcAvatar').textContent = USER_AVATAR || '👤';
+        document.getElementById('dcUserName').textContent = USER || 'Гость';
+    }
+
+    // ================================================================
+    // ======  АДМИН-ВХОД (двойной клик по статистике)  ======
+    // ================================================================
+    document.querySelectorAll('.stats .stat').forEach(el => {
+        el.addEventListener('dblclick', dcAdminLogin);
+    });
+
+    function dcAdminLogin() {
+        const pwd = prompt('🏴‍☠️ Введите пароль админа:');
+        if (pwd === '12345') {
+            IS_ADMIN = true;
+            localStorage.setItem('dc_admin_global', 'true');
+            alert('✅ Админ-режим включён!');
+            dcLoadAll();
+        } else if (pwd !== null) {
+            alert('❌ Неверный пароль!');
+        }
+    }
+
+    // ================================================================
+    // ======  ПРОФИЛЬ  ======
+    // ================================================================
+    const EMOJIS = ['👤','😎','🔥','💪','🦄','🌈','⭐','🚀','💎','🤖','👾','🎯','🏆','💯','✨','🌟','💫','⚡','💜','💙','💚','❤️','🧡','💛','🤍','🖤','💝','💘','💕','💓','💗','💖'];
+
+    function dcOpenProfile() {
+        const modal = document.getElementById('dcProfileModal');
+        modal.classList.add('open');
+
+        const grid = document.getElementById('dcEmojiGrid');
+        grid.innerHTML = '';
+        EMOJIS.forEach(e => {
+            const span = document.createElement('span');
+            span.textContent = e;
+            span.dataset.emoji = e;
+            if (e === USER_AVATAR) span.classList.add('selected');
+            span.onclick = function() {
+                document.querySelectorAll('#dcEmojiGrid span').forEach(el => el.classList.remove('selected'));
+                this.classList.add('selected');
+            };
+            grid.appendChild(span);
+        });
+
+        document.getElementById('dcProfileNameInput').value = USER || '';
+    }
+
+    function dcCloseProfile() { document.getElementById('dcProfileModal').classList.remove('open'); }
+
+    function dcSaveProfile() {
+        const name = document.getElementById('dcProfileNameInput').value.trim();
+        const selected = document.querySelector('#dcEmojiGrid span.selected');
+        const emoji = selected ? selected.dataset.emoji : '👤';
+
+        if (!name) { alert('Введите имя'); return; }
+        if (name.length > 24) { alert('Слишком длинное имя'); return; }
+
+        USER = name;
+        USER_AVATAR = emoji;
+        localStorage.setItem('dc_user_global', USER);
+        localStorage.setItem('dc_avatar_global', USER_AVATAR);
+        dcUpdateUI();
+        dcCloseProfile();
+        dcLoadAll();
+        alert('✅ Профиль обновлён!');
+    }
+
+    // ================================================================
+    // ======  ЗАГРУЗКА ВСЕХ КОМНАТ  ======
+    // ================================================================
+    function dcLoadAll() {
+        DB.ref('sites').once('value', snap => {
+            const sites = snap.val() || {};
+            const siteKeys = Object.keys(sites);
+            document.getElementById('dcSitesCount').textContent = siteKeys.length;
+
+            allRooms = [];
+            pendingRooms = [];
+
+            siteKeys.forEach(siteId => {
+                const site = sites[siteId];
+                const rooms = site.rooms || {};
+                const pending = site.pending || {};
+
+                Object.keys(rooms).forEach(roomId => {
+                    const room = rooms[roomId];
+                    allRooms.push({
+                        id: roomId,
+                        siteId: siteId,
+                        name: room.name || 'Без названия',
+                        author: room.createdBy || 'anon',
+                        createdAt: room.createdAt || Date.now(),
+                        approved: true,
+                        count: room.count || 0
+                    });
+                });
+
+                Object.keys(pending).forEach(roomId => {
+                    const room = pending[roomId];
+                    pendingRooms.push({
+                        id: roomId,
+                        siteId: siteId,
+                        name: room.name || 'Без названия',
+                        author: room.createdBy || 'anon',
+                        createdAt: room.createdAt || Date.now(),
+                        approved: false,
+                        count: room.count || 0
+                    });
+                });
+            });
+
+            allRooms.sort((a, b) => b.createdAt - a.createdAt);
+            pendingRooms.sort((a, b) => b.createdAt - a.createdAt);
+
+            document.getElementById('dcTotalRooms').textContent = allRooms.length;
+            document.getElementById('dcPendingRooms').textContent = pendingRooms.length;
+
+            dcRenderTab(CURRENT_TAB);
+        });
+    }
+
+    // ================================================================
+    // ======  ВКЛАДКИ  ======
+    // ================================================================
+    function dcSwitchTab(tab) {
+        if (tab === 'create') { dcOpenCreateRoom(); return; }
+        CURRENT_TAB = tab;
+        document.querySelectorAll('.tabs .tab').forEach(el => {
+            el.classList.toggle('active', el.dataset.tab === tab);
+        });
+        dcRenderTab(tab);
+    }
+
+    function dcRenderTab(tab) {
+        const container = document.getElementById('dcContent');
+
+        document.getElementById('dcAllCount').textContent = allRooms.length;
+        document.getElementById('dcPendingCount').textContent = pendingRooms.length;
+        const myRooms = allRooms.filter(r => r.author === USER);
+        document.getElementById('dcMyCount').textContent = myRooms.length;
+
+        let rooms = [];
+        let title = '';
+
+        switch(tab) {
+            case 'all': rooms = allRooms; title = '🌐 Все комнаты'; break;
+            case 'pending': rooms = pendingRooms; title = '⏳ Ожидают одобрения'; break;
+            case 'my': rooms = myRooms; title = '📌 Мои комнаты'; break;
+            default: rooms = allRooms; title = '🌐 Все комнаты';
+        }
+
+        if (rooms.length === 0) {
+            container.innerHTML = `<div style="text-align:center;color:#444;padding:40px 0;font-size:1rem;">${tab === 'pending' ? '✅ Нет комнат на одобрение' : '📭 Нет комнат'}</div>`;
+            return;
+        }
+
+        let html = `<div style="font-size:0.85rem;color:#666;margin-bottom:12px;">${title} (${rooms.length})</div>`;
+
+        rooms.forEach(room => {
+            const isPending = tab === 'pending';
+            const isAuthor = room.author === USER;
+
+            html += `
+                <div class="room-card">
+                    <div class="room-info">
+                        <div class="room-name">${room.name}</div>
+                        <div class="room-site">🌐 ${room.siteId}</div>
+                        <div class="room-author">👤 ${room.author}</div>
+                    </div>
+                    <div>
+                        <span class="room-status ${room.approved ? 'approved' : 'pending'}">
+                            ${room.approved ? '✅ Одобрена' : '⏳ Ожидает'}
+                        </span>
+                    </div>
+                    <div class="room-actions">
+                        ${isPending && IS_ADMIN ? `
+                            <button class="btn-approve" onclick="dcApproveRoom('${room.siteId}','${room.id}')">✅ Одобрить</button>
+                            <button class="btn-reject" onclick="dcRejectRoom('${room.siteId}','${room.id}')">❌ Отклонить</button>
+                        ` : ''}
+                        ${room.approved ? `
+                            <button class="btn-enter" onclick="dcEnterRoom('${room.siteId}','${room.id}')">🚪 Войти</button>
+                        ` : ''}
+                        ${IS_ADMIN ? `
+                            <button class="btn-delete" onclick="dcDeleteRoom('${room.siteId}','${room.id}', ${isPending})">🗑 Удалить</button>
+                        ` : ''}
+                        ${!isPending && isAuthor && !IS_ADMIN ? `
+                            <button class="btn-delete" onclick="dcDeleteRoom('${room.siteId}','${room.id}', false)">🗑 Удалить</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ================================================================
+    // ======  ДЕЙСТВИЯ С КОМНАТАМИ  ======
+    // ================================================================
+
+    function dcApproveRoom(siteId, roomId) {
+        if (!IS_ADMIN) { alert('⛔ Только для админа!'); return; }
+        if (!confirm('✅ Одобрить комнату?')) return;
+
+        const pendingRef = DB.ref('sites/' + siteId + '/pending/' + roomId);
+        pendingRef.once('value', snap => {
+            const data = snap.val();
+            if (!data) { alert('Комната не найдена'); return; }
+            DB.ref('sites/' + siteId + '/rooms/' + roomId).set(data);
+            pendingRef.remove();
+            alert('✅ Комната одобрена!');
+            dcLoadAll();
+        });
+    }
+
+    function dcRejectRoom(siteId, roomId) {
+        if (!IS_ADMIN) { alert('⛔ Только для админа!'); return; }
+        if (!confirm('❌ Отклонить комнату?')) return;
+        DB.ref('sites/' + siteId + '/pending/' + roomId).remove();
+        alert('❌ Комната отклонена');
+        dcLoadAll();
+    }
+
+    function dcDeleteRoom(siteId, roomId, isPending = false) {
+        if (!IS_ADMIN && room.author !== USER) {
+            alert('⛔ Только админ или автор может удалить!');
+            return;
+        }
+        if (!confirm('🗑️ Удалить комнату навсегда?')) return;
+
+        const path = isPending 
+            ? 'sites/' + siteId + '/pending/' + roomId 
+            : 'sites/' + siteId + '/rooms/' + roomId;
+
+        DB.ref(path).remove()
+            .then(() => {
+                alert('✅ Комната удалена!');
+                dcLoadAll();
+            })
+            .catch(err => alert('❌ ' + err.message));
+    }
+
+    function dcEnterRoom(siteId, roomId) {
+        localStorage.setItem('dc_enter_site', siteId);
+        localStorage.setItem('dc_enter_room', roomId);
+        window.open('?room=' + roomId + '&site=' + siteId, '_blank');
+    }
+
+    // ================================================================
+    // ======  СОЗДАНИЕ КОМНАТЫ  ======
+    // ================================================================
+    function dcOpenCreateRoom() {
+        document.getElementById('dcCreateRoomModal').classList.add('open');
+        document.getElementById('dcNewRoomName').value = '';
+        document.getElementById('dcNewRoomName').focus();
+    }
+
+    function dcCloseCreateRoom() {
+        document.getElementById('dcCreateRoomModal').classList.remove('open');
+        dcRenderTab('all');
+    }
+
+    function dcSubmitRoom() {
+        const name = document.getElementById('dcNewRoomName').value.trim();
+        if (!name) { alert('⚠️ Введите название'); return; }
+        if (name.length < 2) { alert('⚠️ Минимум 2 символа'); return; }
+        if (!USER) { alert('⚠️ Сначала введите имя (кликните на свой профиль)'); return; }
+
+        const roomData = {
+            name: name,
+            createdAt: Date.now(),
+            createdBy: USER,
+            count: 0
+        };
+
+        DB.ref('sites/' + SITE_ID + '/pending').push(roomData)
+            .then(() => {
+                dcCloseCreateRoom();
+                alert('✅ Комната "' + name + '" отправлена на одобрение!');
+                dcLoadAll();
+            })
+            .catch(err => alert('❌ ' + err.message));
+    }
+
+    // ================================================================
+    // ======  ВИДЖЕТ  ======
+    // ================================================================
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const roomId = params.get('room');
+        const siteId = params.get('site');
+        if (roomId && siteId) {
+            document.body.innerHTML = `
+                <div style="background:#0a0a0a;color:#fff;font-family:system-ui;padding:12px;min-height:100vh;">
+                    <div style="max-width:800px;margin:0 auto;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #222;">
+                            <div style="font-weight:700;font-size:1.2rem;color:#fff;">Deep<span style="color:#1877f2;">Chat</span></div>
+                            <button onclick="location.href='.'" style="background:#2a2a2a;border:none;color:#888;padding:4px 16px;border-radius:40px;cursor:pointer;">← Назад</button>
+                        </div>
+                        <div id="deepchat-widget" style="margin-top:12px;min-height:400px;"></div>
+                    </div>
+                </div>
+                <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"><\/script>
+                <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"><\/script>
+                <script>
+                (function() {
+                    const root = document.getElementById('deepchat-widget');
+                    if (!root) return;
+
+                    const config = {
+                        apiKey: "AIzaSyC81Ow4VPAUcaQGAuJjhtA-OaR8hyqxCtI",
+                        authDomain: "mychatapp-2c141.firebaseapp.com",
+                        databaseURL: "https://mychatapp-2c141-default-rtdb.firebaseio.com",
+                        projectId: "mychatapp-2c141",
+                        storageBucket: "mychatapp-2c141.firebasestorage.app",
+                        messagingSenderId: "857322151793",
+                        appId: "1:857322151793:web:387599e9e6f9cf1454a0d0"
+                    };
+                    firebase.initializeApp(config);
+                    const DB = firebase.database();
+
+                    const SITE_ID = '${siteId}';
+                    const ROOM_ID = '${roomId}';
+                    const USER = '${USER || 'Гость'}';
+
+                    root.innerHTML = \`
+                        <div style="background:#0a0a12;color:#eee;font-family:system-ui;padding:10px;width:100%;min-height:300px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;">
+                                <span style="color:#ff8c00;font-weight:700;font-size:1.1rem;">🌀 DeepChat</span>
+                                <span style="font-size:0.6rem;color:#666;">📝 посты</span>
+                            </div>
+                            <div style="background:#10101a;border-radius:16px;border:1px solid #262633;overflow:hidden;display:flex;flex-direction:column;height:70vh;margin-top:8px;">
+                                <div id="dcMessages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
+                                <div style="padding:10px 12px;background:#0e0e18;border-top:1px solid #262633;">
+                                    <div style="display:flex;gap:8px;">
+                                        <input type="text" id="dcMsgInput" placeholder="Напиши пост или ссылку..." style="flex:1;padding:10px 16px;background:#181825;border:1px solid #323245;border-radius:40px;color:white;font-size:0.85rem;outline:none;">
+                                        <button onclick="dcSendMessage()" style="background:#ff8c00;border:none;border-radius:40px;padding:0 18px;font-weight:700;color:#0b0b0f;cursor:pointer;">→</button>
+                                    </div>
+                                    <div style="margin-top:6px;">
+                                        <label for="dcFileInput" style="background:#222235;padding:2px 14px;border-radius:40px;font-size:0.65rem;border:1px solid #3e3e55;cursor:pointer;display:inline-block;">📎 фото</label>
+                                        <input type="file" id="dcFileInput" accept="image/*" style="display:none;">
+                                        <div id="dcPreview" style="display:none;align-items:center;gap:8px;background:#181825;padding:2px 12px 2px 2px;border-radius:40px;margin-top:4px;border:1px solid #3a3a50;">
+                                            <img id="dcPreviewImg" style="width:32px;height:32px;border-radius:30px;object-fit:cover;">
+                                            <span id="dcPreviewName" style="font-size:0.65rem;max-width:60px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
+                                            <button onclick="dcRemoveImage()" style="background:#6a1a1a;color:white;border:none;border-radius:30px;padding:0 10px;cursor:pointer;">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    \`;
+
+                    let currentUser = USER;
+                    let editingId = null;
+                    const msgRef = DB.ref('sites/' + SITE_ID + '/rooms/' + ROOM_ID + '/messages');
+
+                    window.dcSendMessage = function() {
+                        const input = document.getElementById('dcMsgInput');
+                        if (!input) return;
+                        const text = input.value.trim();
+                        const preview = document.getElementById('dcPreview');
+                        const previewImg = document.getElementById('dcPreviewImg');
+                        const pendingImage = preview && preview.style.display === 'flex' ? previewImg.src : null;
+                        if (!text && !pendingImage) return;
+
+                        const data = {
+                            nick: currentUser,
+                            text: text || '📷',
+                            time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+                            timestamp: Date.now(),
+                            likes: 0,
+                            img: pendingImage || null,
+                            link: null,
+                            marquee: null,
+                            buttons: [],
+                            hashtags: [],
+                            edited: false
+                        };
+
+                        const linkMatch = (text || '').match(/(https?:\\/\\/[^\\s]+)/);
+                        if (linkMatch) data.link = linkMatch[1];
+
+                        msgRef.push(data);
+                        input.value = '';
+                        dcRemoveImage();
+                    };
+
+                    window.dcRemoveImage = function() {
+                        document.getElementById('dcPreview').style.display = 'none';
+                        document.getElementById('dcFileInput').value = '';
+                    };
+
+                    document.getElementById('dcFileInput').addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                            if (file.size > 2 * 1024 * 1024) { alert('Максимум 2MB'); return; }
+                            const reader = new FileReader();
+                            reader.onload = function(ev) {
+                                document.getElementById('dcPreviewImg').src = ev.target.result;
+                                document.getElementById('dcPreviewName').textContent = file.name.slice(0, 14);
+                                document.getElementById('dcPreview').style.display = 'flex';
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+
+                    msgRef.orderByChild('timestamp').on('value', snap => {
+                        const messagesDiv = document.getElementById('dcMessages');
+                        if (!messagesDiv) return;
+                        messagesDiv.innerHTML = '';
+                        snap.forEach(s => {
+                            const m = s.val();
+                            m.id = s.key;
+                            renderMessage(m);
+                        });
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    });
+
+                    function renderMessage(m) {
+                        const messagesDiv = document.getElementById('dcMessages');
+                        if (!messagesDiv) return;
+                        const div = document.createElement('div');
+                        div.style.cssText = 'background:#14141f;border-radius:14px;padding:12px 14px;border:1px solid #2a2a3a;';
+
+                        let marqueeHtml = '';
+                        if (m.marquee) {
+                            marqueeHtml = \`<div style="background:#0f0f1a;padding:4px 0;overflow:hidden;white-space:nowrap;border-radius:6px;margin-bottom:6px;border:1px solid #222;"><span style="display:inline-block;animation:dcScroll 10s linear infinite;color:#ff8c00;font-weight:600;font-size:0.85rem;padding-left:16px;">\${escapeHtml(m.marquee)}</span></div>\`;
+                        }
+
+                        let textHtml = escapeHtml(m.text || '');
+                        const linkMatch = (m.text || '').match(/(https?:\\/\\/[^\\s]+)/);
+                        if (linkMatch && m.link) {
+                            textHtml = textHtml.replace(linkMatch[1], \`<span style="color:#555;font-size:0.75rem;">\${linkMatch[1]}</span>\`);
+                        }
+
+                        let imgHtml = '';
+                        if (m.img) {
+                            imgHtml = \`<img src="\${m.img}" onclick="window.open(this.src)" style="max-width:100%;max-height:180px;border-radius:10px;margin:4px 0;border:1px solid #333;cursor:pointer;">\`;
+                        }
+
+                        let buttonsHtml = '';
+                        if (m.buttons && m.buttons.length > 0) {
+                            buttonsHtml = '<div style="display:flex;flex-direction:column;gap:4px;margin:6px 0;">';
+                            m.buttons.forEach(btn => {
+                                if (btn.url) {
+                                    buttonsHtml += \`<a href="\${escapeHtml(btn.url)}" target="_blank" style="display:block;background:#ff8c00;border:none;border-radius:10px;padding:8px 14px;text-align:center;text-decoration:none;color:#0b0b0f;font-weight:700;font-size:0.85rem;cursor:pointer;">\${escapeHtml(btn.label || '🔗 Перейти')}</a>\`;
+                                }
+                            });
+                            buttonsHtml += '</div>';
+                        }
+
+                        let frameHtml = '';
+                        if (m.link) {
+                            frameHtml = \`<div style="margin:6px 0 4px 0;border:1px solid #333;border-radius:10px;overflow:hidden;background:#0f0f1a;width:100%;"><iframe src="\${m.link}" sandbox="allow-scripts allow-same-origin allow-popups" style="width:100%;height:280px;border:none;display:block;"></iframe></div>\`;
+                        }
+
+                        let hashtagsHtml = '';
+                        if (m.hashtags && m.hashtags.length > 0) {
+                            hashtagsHtml = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px 0;padding-top:6px;border-top:1px solid #222;">';
+                            m.hashtags.forEach(tag => {
+                                hashtagsHtml += \`<span style="color:#66aaff;font-size:0.65rem;background:#0f0f1a;padding:0 10px;border-radius:20px;border:1px solid #222;">\${escapeHtml(tag)}</span>\`;
+                            });
+                            hashtagsHtml += '</div>';
+                        }
+
+                        let actionsHtml = \`
+                            <button onclick="dcLikeMsg('\${m.id}')" style="background:#222233;border:1px solid #333349;color:#ccc;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;">👍 \${m.likes || 0}</button>
+                            <button onclick="dcReplyMsg('\${m.id}','\${escapeHtml(m.nick)}')" style="background:#222233;border:1px solid #333349;color:#ccc;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;">💬 ответ</button>
+                        \`;
+                        if (m.nick === currentUser) {
+                            actionsHtml += \`<button onclick="dcOpenEdit('\${m.id}')" style="background:#2a2a3a;border-color:#ff8c00;color:#ff8c00;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">✏️ ред.</button>\`;
+                        }
+                        if (m.nick === currentUser) {
+                            actionsHtml += \`<button onclick="dcDeleteMsg('\${m.id}')" style="background:#4a1a1a;border-color:#6a1a1a;color:#ff6666;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">🗑</button>\`;
+                        }
+
+                        div.innerHTML = \`
+                            \${marqueeHtml}
+                            <div>
+                                <span style="color:#ffaa44;font-weight:700;font-size:0.85rem;">\${escapeHtml(m.nick)}</span>
+                                <span style="color:#666;font-size:0.55rem;margin-left:6px;">\${m.time || ''}</span>
+                                \${m.edited ? ' <span style="color:#666;font-size:0.5rem;">(ред.)</span>' : ''}
+                            </div>
+                            <div style="margin:4px 0;word-break:break-word;font-size:0.85rem;line-height:1.4;">\${textHtml}</div>
+                            \${imgHtml}
+                            \${buttonsHtml}
+                            \${frameHtml}
+                            \${hashtagsHtml}
+                            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">\${actionsHtml}</div>
+                        \`;
+                        messagesDiv.appendChild(div);
+                    }
+
+                    window.dcLikeMsg = function(id) {
+                        const key = \`liked_\${id}_\${currentUser}\`;
+                        if (localStorage.getItem(key)) return;
+                        msgRef.child(id + '/likes').transaction(v => (v || 0) + 1);
+                        localStorage.setItem(key, 'true');
+                    };
+
+                    window.dcReplyMsg = function(id, nick) {
+                        const input = document.getElementById('dcMsgInput');
+                        if (input) {
+                            input.value = \`@\${nick} \`;
+                            input.focus();
+                        }
+                    };
+
+                    window.dcDeleteMsg = function(id) {
+                        if (!confirm('Удалить этот пост?')) return;
+                        msgRef.child(id).remove();
+                    };
+
+                    window.dcOpenEdit = function(id) {
+                        editingId = id;
+                        const modal = document.createElement('div');
+                        modal.id = 'dcEditModal';
+                        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;justify-content:center;align-items:center;padding:16px;';
+                        modal.innerHTML = \`
+                            <div style="background:#1a1a2a;border-radius:16px;padding:20px;max-width:500px;width:100%;border:1px solid #333;max-height:90vh;overflow-y:auto;">
+                                <h2 style="color:#ff8c00;font-size:1.1rem;margin-bottom:8px;">✏️ Редактировать</h2>
+                                <input type="text" id="dcEditMarquee" placeholder="Бегущая строка" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;">
+                                <textarea id="dcEditText" placeholder="Текст" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;min-height:50px;resize:vertical;"></textarea>
+                                <input type="url" id="dcEditLink" placeholder="Ссылка (iframe)" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;">
+                                <input type="text" id="dcEditHashtags" placeholder="#hashtags" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;">
+                                <div style="margin:6px 0 4px 0;color:#888;font-size:0.7rem;">🔘 Кнопки</div>
+                                <div id="dcEditButtonsContainer"></div>
+                                <button onclick="dcAddButtonField()" style="background:#222;color:#ff8c00;border:1px solid #333;border-radius:30px;padding:4px 14px;cursor:pointer;font-size:0.7rem;margin-top:4px;">➕ Кнопку</button>
+                                <div style="display:flex;gap:8px;margin-top:10px;">
+                                    <button onclick="dcSaveEdit()" style="background:#ff8c00;color:#0b0b0f;border:none;padding:8px;border-radius:40px;font-weight:700;flex:1;cursor:pointer;">💾 Сохранить</button>
+                                    <button onclick="dcCloseEdit()" style="background:#6a1a1a;color:#ff8888;border:none;padding:8px;border-radius:40px;font-weight:700;flex:1;cursor:pointer;">✕ Отмена</button>
+                                </div>
+                                <button onclick="dcDeletePost()" style="background:#6a1a1a;color:#ff8888;border:none;padding:6px;border-radius:40px;margin-top:8px;cursor:pointer;width:100%;font-size:0.8rem;">🗑 Удалить пост</button>
+                            </div>
+                        \`;
+                        document.body.appendChild(modal);
+
+                        msgRef.child(id).once('value', snap => {
+                            const m = snap.val();
+                            if (!m) return;
+                            document.getElementById('dcEditMarquee').value = m.marquee || '';
+                            document.getElementById('dcEditText').value = m.text || '';
+                            document.getElementById('dcEditLink').value = m.link || '';
+                            document.getElementById('dcEditHashtags').value = (m.hashtags || []).join(' ');
+
+                            const container = document.getElementById('dcEditButtonsContainer');
+                            container.innerHTML = '';
+                            const btns = m.buttons || [];
+                            btns.forEach(btn => dcAddButtonField(btn.label, btn.url));
+                            if (btns.length === 0) dcAddButtonField('', '');
+                        });
+                    };
+
+                    window.dcAddButtonField = function(label = '', url = '') {
+                        const container = document.getElementById('dcEditButtonsContainer');
+                        const div = document.createElement('div');
+                        div.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:center;';
+                        div.innerHTML = \`
+                            <input class="dc-btn-label" placeholder="Текст" value="\${escapeHtml(label)}" style="flex:1;padding:6px 10px;background:#0f0f1a;border:1px solid #333;border-radius:6px;color:white;font-size:0.8rem;">
+                            <input class="dc-btn-url" placeholder="Ссылка" value="\${escapeHtml(url)}" style="flex:2;padding:6px 10px;background:#0f0f1a;border:1px solid #333;border-radius:6px;color:white;font-size:0.8rem;">
+                            <button onclick="dcRemoveButtonField(this)" style="background:#4a1a1a;color:#ff6666;border:none;border-radius:30px;padding:2px 10px;cursor:pointer;font-size:0.7rem;">✕</button>
+                        \`;
+                        container.appendChild(div);
+                    };
+
+                    window.dcRemoveButtonField = function(btn) {
+                        const group = btn.parentElement;
+                        if (document.getElementById('dcEditButtonsContainer').children.length > 1) {
+                            group.remove();
+                        } else {
+                            group.querySelector('.dc-btn-label').value = '';
+                            group.querySelector('.dc-btn-url').value = '';
+                        }
+                    };
+
+                    window.dcSaveEdit = function() {
+                        if (!editingId) return;
+
+                        const marquee = document.getElementById('dcEditMarquee').value.trim();
+                        const text = document.getElementById('dcEditText').value.trim();
+                        const link = document.getElementById('dcEditLink').value.trim();
+                        const hashtagsRaw = document.getElementById('dcEditHashtags').value.trim();
+                        const hashtags = hashtagsRaw ? hashtagsRaw.split(/\\s+/).filter(t => t.startsWith('#')) : [];
+
+                        const buttons = [];
+                        document.querySelectorAll('#dcEditButtonsContainer .dc-btn-group').forEach(g => {
+                            const label = g.querySelector('.dc-btn-label').value.trim();
+                            const url = g.querySelector('.dc-btn-url').value.trim();
+                            if (url) buttons.push({ label: label || '🔗 Перейти', url });
+                        });
+
+                        const updates = {
+                            marquee: marquee || null,
+                            text: text || '📝',
+                            link: link || null,
+                            buttons: buttons,
+                            hashtags: hashtags,
+                            edited: true,
+                            editedAt: Date.now()
+                        };
+
+                        msgRef.child(editingId).update(updates);
+                        dcCloseEdit();
+                    };
+
+                    window.dcDeletePost = function() {
+                        if (!editingId) return;
+                        if (confirm('Удалить пост навсегда?')) {
+                            msgRef.child(editingId).remove();
+                            dcCloseEdit();
+                        }
+                    };
+
+                    window.dcCloseEdit = function() {
+                        const modal = document.getElementById('dcEditModal');
+                        if (modal) modal.remove();
+                        editingId = null;
+                    };
+
+                    document.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'dcMsgInput') {
+                            dcSendMessage();
+                        }
+                    });
+
+                    function escapeHtml(str) {
+                        if (!str) return '';
+                        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+                    }
+
+                    const style = document.createElement('style');
+                    style.textContent = \`@keyframes dcScroll { 0% { transform:translateX(100%); } 100% { transform:translateX(-100%); } }\`;
+                    document.head.appendChild(style);
+
+                    console.log('💬 Виджет загружен для комнаты:', ROOM_ID);
+                })();
+                <\/script>
+            `;
+            return;
+        }
+    })();
+
+    // ================================================================
+    // ======  ЗАПУСК  ======
+    // ================================================================
+    dcLoadAll();
+    console.log('💬 DeepChat Panel загружена!');
+    console.log('👤 Пользователь:', USER || 'не задан');
+    console.log('🏴‍☠️ Админ-пароль: 12345 (двойной клик на статистику)');
+    </script>
+</body>
+</html>
