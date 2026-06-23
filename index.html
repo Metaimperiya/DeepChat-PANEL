@@ -773,7 +773,7 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        // ===== GEMINI AI ОТВЕТЧИК (ИСПРАВЛЕННЫЙ) =====
+        // ===== GEMINI AI ОТВЕТЧИК =====
         msgRef.limitToLast(1).on('child_added', async snap => {
             if (aiListening) return;
             const msg = snap.val();
@@ -892,7 +892,8 @@
             if (m.nick === currentUser) {
                 actionsHtml += `<button onclick="dcOpenEdit('${m.id}')" style="background:#2a2a3a;border-color:#ff8c00;color:#ff8c00;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">✏️ ред.</button>`;
             }
-            if (m.nick === currentUser) {
+            // ===== АДМИН МОЖЕТ УДАЛЯТЬ ЛЮБЫЕ СООБЩЕНИЯ =====
+            if (m.nick === currentUser || IS_ADMIN) {
                 actionsHtml += `<button onclick="dcDeleteMsg('${m.id}')" style="background:#4a1a1a;border-color:#6a1a1a;color:#ff6666;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">🗑</button>`;
             }
 
