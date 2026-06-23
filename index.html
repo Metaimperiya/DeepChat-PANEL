@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>DeepChat · Сайт с ИИ</title>
+    <title>DeepChat · Панель + Чат</title>
     <style>
-        /* ===== ВСЕ СТИЛИ ОСТАЛИСЬ ТАКИМИ ЖЕ ===== */
+        /* ===== СТИЛИ (ТЕ ЖЕ) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0a0a;
@@ -135,11 +135,20 @@
         .room-card .room-actions .btn-approve:hover { background: #4a9eff; }
         .room-card .room-actions .btn-reject { background: #4a1a1a; color: #ff6666; }
         .room-card .room-actions .btn-reject:hover { background: #6a1a1a; }
-        .room-card .room-actions .btn-enter { background: #2a2a2a; color: #fff; }
-        .room-card .room-actions .btn-enter:hover { background: #3a3a3a; }
+        .room-card .room-actions .btn-enter {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #4a4a4a;
+            cursor: pointer;
+        }
+        .room-card .room-actions .btn-enter:hover {
+            background: #3a3a3a;
+            border-color: #1877f2;
+        }
         .room-card .room-actions .btn-delete { background: #4a1a1a; color: #ff6666; }
         .room-card .room-actions .btn-delete:hover { background: #6a1a1a; }
 
+        /* ===== МОДАЛКИ ===== */
         .modal {
             display: none;
             position: fixed;
@@ -223,7 +232,6 @@
         }
         .modal .modal-box .room-create-input:focus { border-color: #1877f2; }
 
-        /* ===== ПОДВАЛ С ОПИСАНИЕМ ===== */
         .footer-docs {
             margin-top: 30px;
             padding: 20px;
@@ -258,6 +266,47 @@
             overflow-x: auto;
             white-space: pre-wrap;
             word-break: break-all;
+        }
+
+        /* ===== ЧАТ (встроенный) ===== */
+        .chat-embed {
+            margin-top: 16px;
+            background: #0f0f18;
+            border: 1px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 16px;
+            display: none;
+        }
+        .chat-embed.active {
+            display: block;
+        }
+        .chat-embed .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .chat-embed .chat-header .chat-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+        .chat-embed .chat-header .chat-close {
+            background: #2a2a2a;
+            border: none;
+            color: #888;
+            padding: 4px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .chat-embed .chat-header .chat-close:hover {
+            background: #3a3a3a;
+            color: #fff;
+        }
+        #deepchat-widget {
+            min-height: 400px;
+            width: 100%;
         }
 
         @media (max-width: 640px) {
@@ -323,51 +372,30 @@
         <div style="text-align:center;color:#444;padding:40px 0;">Загрузка комнат...</div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- ======  ПОДВАЛ С ДОКУМЕНТАЦИЕЙ  ====== -->
-    <!-- ============================================================ -->
+    <!-- ===== ВСТРОЕННЫЙ ЧАТ ===== -->
+    <div class="chat-embed" id="chatEmbed">
+        <div class="chat-header">
+            <div class="chat-title" id="chatTitle">💬 Комната</div>
+            <button class="chat-close" onclick="dcCloseChat()">✕ Закрыть</button>
+        </div>
+        <div id="deepchat-widget"></div>
+    </div>
+
+    <!-- ===== ПОДВАЛ ===== -->
     <div class="footer-docs">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
             <span style="font-size:1.2rem;">📘</span>
             <strong style="color:#fff;font-size:1rem;">DeepChat — Архитектура проекта</strong>
             <span class="badge-doc">v3.0 AI</span>
         </div>
-
-        <p><strong>🔹 Это панель управления</strong> — главный сайт, где админ видит все комнаты со всех сайтов.</p>
-
-        <p><strong>🔹 Виджет DeepChat</strong> — отдельный компонент, который вставляется на любой сайт.</p>
-
-        <div class="code-block">
-            &lt;div id="deepchat-widget"&gt;&lt;/div&gt;
-            &lt;script src="firebase.js"&gt;&lt;/script&gt;
-            &lt;script&gt; ... весь код виджета ... &lt;/script&gt;
-        </div>
-
-        <p><strong>🔹 Firebase — платформа для 100+ чатов</strong></p>
-        <div class="code-block">
-            sites/
-              └── site_id_1/
-                    ├── rooms/
-                    │     └── room_001/
-                    │           └── messages/
-                    │                 └── post_001
-                    └── pending/
-                          └── room_002/
-        </div>
-
-        <p><strong>🔹 Одна комната = один чат</strong> — каждое сообщение — это отдельный пост в комнате.</p>
-
+        <p><strong>🔹 Панель управления</strong> — все комнаты со всех сайтов.</p>
+        <p><strong>🔹 Виджет</strong> — встраивается в любой сайт.</p>
+        <p><strong>🔹 Firebase</strong> — платформа для 100+ чатов.</p>
         <p><strong>🔹 Админ-вход:</strong> двойной клик по статистике → пароль <span class="highlight">12345</span></p>
-
-        <p><strong>🔹 Виджет можно вставить на 100+ сайтов</strong> — у каждого сайта будут свои комнаты.</p>
-
-        <p style="margin-top:8px;color:#555;font-size:0.75rem;">
-            🚀 Создано: сайт-лендинг + панель управления + виджет для любых сайтов.
-            Firebase — как платформа для мессенджеров.
-        </p>
+        <p><strong>🔹 Бесплатный AI</strong> — отвечает на вопросы в чате.</p>
     </div>
 
-    <!-- ===== МОДАЛКА ПРОФИЛЯ ===== -->
+    <!-- ===== МОДАЛКИ ===== -->
     <div class="modal" id="dcProfileModal">
         <div class="modal-box">
             <h3>✏️ Редактировать профиль</h3>
@@ -381,7 +409,6 @@
         </div>
     </div>
 
-    <!-- ===== МОДАЛКА СОЗДАНИЯ КОМНАТЫ ===== -->
     <div class="modal" id="dcCreateRoomModal">
         <div class="modal-box">
             <h3>📝 Создать комнату</h3>
@@ -429,7 +456,6 @@
     let allRooms = [];
     let pendingRooms = [];
 
-    // ===== ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
     if (!USER) {
         const nick = prompt('👤 Ваше имя:');
         if (nick && nick.trim()) {
@@ -440,17 +466,12 @@
     }
     dcUpdateUI();
 
-    // ================================================================
-    // ======  UI  ======
-    // ================================================================
     function dcUpdateUI() {
         document.getElementById('dcAvatar').textContent = USER_AVATAR || '👤';
         document.getElementById('dcUserName').textContent = USER || 'Гость';
     }
 
-    // ================================================================
-    // ======  АДМИН-ВХОД (двойной клик по статистике)  ======
-    // ================================================================
+    // ===== АДМИН =====
     document.querySelectorAll('.stats .stat').forEach(el => {
         el.addEventListener('dblclick', dcAdminLogin);
     });
@@ -467,15 +488,12 @@
         }
     }
 
-    // ================================================================
-    // ======  ПРОФИЛЬ  ======
-    // ================================================================
+    // ===== ПРОФИЛЬ =====
     const EMOJIS = ['👤','😎','🔥','💪','🦄','🌈','⭐','🚀','💎','🤖','👾','🎯','🏆','💯','✨','🌟','💫','⚡','💜','💙','💚','❤️','🧡','💛','🤍','🖤','💝','💘','💕','💓','💗','💖'];
 
     function dcOpenProfile() {
         const modal = document.getElementById('dcProfileModal');
         modal.classList.add('open');
-
         const grid = document.getElementById('dcEmojiGrid');
         grid.innerHTML = '';
         EMOJIS.forEach(e => {
@@ -489,7 +507,6 @@
             };
             grid.appendChild(span);
         });
-
         document.getElementById('dcProfileNameInput').value = USER || '';
     }
 
@@ -499,10 +516,8 @@
         const name = document.getElementById('dcProfileNameInput').value.trim();
         const selected = document.querySelector('#dcEmojiGrid span.selected');
         const emoji = selected ? selected.dataset.emoji : '👤';
-
         if (!name) { alert('Введите имя'); return; }
         if (name.length > 24) { alert('Слишком длинное имя'); return; }
-
         USER = name;
         USER_AVATAR = emoji;
         localStorage.setItem('dc_user_global', USER);
@@ -513,9 +528,7 @@
         alert('✅ Профиль обновлён!');
     }
 
-    // ================================================================
-    // ======  ЗАГРУЗКА ВСЕХ КОМНАТ  ======
-    // ================================================================
+    // ===== ЗАГРУЗКА КОМНАТ =====
     function dcLoadAll() {
         DB.ref('sites').once('value', snap => {
             const sites = snap.val() || {};
@@ -567,9 +580,7 @@
         });
     }
 
-    // ================================================================
-    // ======  ВКЛАДКИ  ======
-    // ================================================================
+    // ===== ВКЛАДКИ =====
     function dcSwitchTab(tab) {
         if (tab === 'create') { dcOpenCreateRoom(); return; }
         CURRENT_TAB = tab;
@@ -642,14 +653,10 @@
         container.innerHTML = html;
     }
 
-    // ================================================================
-    // ======  ДЕЙСТВИЯ С КОМНАТАМИ  ======
-    // ================================================================
-
+    // ===== ДЕЙСТВИЯ С КОМНАТАМИ =====
     function dcApproveRoom(siteId, roomId) {
         if (!IS_ADMIN) { alert('⛔ Только для админа!'); return; }
         if (!confirm('✅ Одобрить комнату?')) return;
-
         const pendingRef = DB.ref('sites/' + siteId + '/pending/' + roomId);
         pendingRef.once('value', snap => {
             const data = snap.val();
@@ -675,11 +682,9 @@
             return;
         }
         if (!confirm('🗑️ Удалить комнату навсегда?')) return;
-
         const path = isPending 
             ? 'sites/' + siteId + '/pending/' + roomId 
             : 'sites/' + siteId + '/rooms/' + roomId;
-
         DB.ref(path).remove()
             .then(() => {
                 alert('✅ Комната удалена!');
@@ -689,9 +694,290 @@
     }
 
     function dcEnterRoom(siteId, roomId) {
-        localStorage.setItem('dc_enter_site', siteId);
-        localStorage.setItem('dc_enter_room', roomId);
-        window.open('?room=' + roomId + '&site=' + siteId, '_blank');
+        // Закрываем панель, показываем чат
+        document.getElementById('chatEmbed').classList.add('active');
+        document.getElementById('chatTitle').textContent = '💬 ' + (allRooms.find(r => r.id === roomId)?.name || 'Комната');
+        // Загружаем виджет в контейнер
+        const container = document.getElementById('deepchat-widget');
+        container.innerHTML = '';
+        dcLoadDeepChat(siteId, roomId, container);
+    }
+
+    function dcCloseChat() {
+        document.getElementById('chatEmbed').classList.remove('active');
+        document.getElementById('deepchat-widget').innerHTML = '';
+    }
+
+    // ================================================================
+    // ======  ВИДЖЕТ (ВСТРАИВАЕМЫЙ)  ======
+    // ================================================================
+    function dcLoadDeepChat(siteId, roomId, container) {
+        if (!container) return;
+
+        // ===== AI КЛЮЧ =====
+        const FREE_AI_KEY = 'sta_80cc0f954dd6566cd0d9e2e4f8ad69a06f10803fdfa90fdc';
+        const AI_MODEL = 'bbg/moonshotai/Kimi-K2.5';
+
+        // ===== ОТРИСОВКА ВИДЖЕТА =====
+        container.innerHTML = `
+            <div style="background:#0a0a12;color:#eee;font-family:system-ui;padding:10px;width:100%;min-height:300px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;">
+                    <span style="color:#ff8c00;font-weight:700;font-size:1.1rem;">🌀 DeepChat AI</span>
+                    <span style="font-size:0.6rem;color:#666;">🤖 AI assistant</span>
+                </div>
+                <div style="background:#10101a;border-radius:16px;border:1px solid #262633;overflow:hidden;display:flex;flex-direction:column;height:60vh;margin-top:8px;">
+                    <div id="dcMessages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
+                    <div style="padding:10px 12px;background:#0e0e18;border-top:1px solid #262633;">
+                        <div style="display:flex;gap:8px;">
+                            <input type="text" id="dcMsgInput" placeholder="Напиши сообщение..." style="flex:1;padding:10px 16px;background:#181825;border:1px solid #323245;border-radius:40px;color:white;font-size:0.85rem;outline:none;">
+                            <button onclick="dcSendMessage()" style="background:#ff8c00;border:none;border-radius:40px;padding:0 18px;font-weight:700;color:#0b0b0f;cursor:pointer;">→</button>
+                        </div>
+                        <div style="margin-top:6px;">
+                            <label for="dcFileInput" style="background:#222235;padding:2px 14px;border-radius:40px;font-size:0.65rem;border:1px solid #3e3e55;cursor:pointer;display:inline-block;">📎 фото</label>
+                            <input type="file" id="dcFileInput" accept="image/*" style="display:none;">
+                            <div id="dcPreview" style="display:none;align-items:center;gap:8px;background:#181825;padding:2px 12px 2px 2px;border-radius:40px;margin-top:4px;border:1px solid #3a3a50;">
+                                <img id="dcPreviewImg" style="width:32px;height:32px;border-radius:30px;object-fit:cover;">
+                                <span id="dcPreviewName" style="font-size:0.65rem;max-width:60px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
+                                <button onclick="dcRemoveImage()" style="background:#6a1a1a;color:white;border:none;border-radius:30px;padding:0 10px;cursor:pointer;">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const msgRef = DB.ref('sites/' + siteId + '/rooms/' + roomId + '/messages');
+        let currentUser = USER;
+
+        // ===== ОТПРАВКА =====
+        window.dcSendMessage = function() {
+            const input = document.getElementById('dcMsgInput');
+            if (!input) return;
+            const text = input.value.trim();
+            const preview = document.getElementById('dcPreview');
+            const previewImg = document.getElementById('dcPreviewImg');
+            const pendingImage = preview && preview.style.display === 'flex' ? previewImg.src : null;
+            if (!text && !pendingImage) return;
+
+            const data = {
+                nick: currentUser,
+                text: text || '📷',
+                time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+                timestamp: Date.now(),
+                likes: 0,
+                img: pendingImage || null,
+                link: null,
+                marquee: null,
+                buttons: [],
+                hashtags: [],
+                edited: false
+            };
+
+            const linkMatch = (text || '').match(/(https?:\/\/[^\s]+)/);
+            if (linkMatch) data.link = linkMatch[1];
+
+            msgRef.push(data);
+            input.value = '';
+            dcRemoveImage();
+        };
+
+        window.dcRemoveImage = function() {
+            document.getElementById('dcPreview').style.display = 'none';
+            document.getElementById('dcFileInput').value = '';
+        };
+
+        document.getElementById('dcFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 2 * 1024 * 1024) { alert('Максимум 2MB'); return; }
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    document.getElementById('dcPreviewImg').src = ev.target.result;
+                    document.getElementById('dcPreviewName').textContent = file.name.slice(0, 14);
+                    document.getElementById('dcPreview').style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ===== ПОДПИСКА =====
+        msgRef.orderByChild('timestamp').on('value', snap => {
+            const messagesDiv = document.getElementById('dcMessages');
+            if (!messagesDiv) return;
+            messagesDiv.innerHTML = '';
+            snap.forEach(s => {
+                const m = s.val();
+                m.id = s.key;
+                renderMessage(m);
+            });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // ===== AI ОТВЕТЧИК (только на сообщения от людей) =====
+        // Используем on('child_added') чтобы не дублировать
+        let aiListening = false;
+        msgRef.limitToLast(1).on('child_added', async snap => {
+            if (aiListening) return;
+            const msg = snap.val();
+            if (!msg || msg.nick === 'AIbot' || msg.isBotResponse || msg.nick === currentUser) return;
+            aiListening = true;
+
+            try {
+                const response = await fetch('https://api.freetheai.xyz/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${FREE_AI_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: AI_MODEL,
+                        messages: [
+                            { role: 'user', content: msg.text }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                const botReply = data.choices?.[0]?.message?.content || 'Ошибка AI, попробуй ещё раз.';
+
+                msgRef.push({
+                    nick: 'AIbot',
+                    text: botReply,
+                    time: new Date().toLocaleTimeString(),
+                    timestamp: Date.now(),
+                    likes: 0,
+                    isBotResponse: true
+                });
+
+            } catch (error) {
+                console.error('AI ошибка:', error);
+            }
+            aiListening = false;
+        });
+
+        // ===== ОТРИСОВКА СООБЩЕНИЯ =====
+        function renderMessage(m) {
+            const messagesDiv = document.getElementById('dcMessages');
+            if (!messagesDiv) return;
+            const div = document.createElement('div');
+            div.style.cssText = 'background:#14141f;border-radius:14px;padding:12px 14px;border:1px solid #2a2a3a;';
+
+            let marqueeHtml = '';
+            if (m.marquee) {
+                marqueeHtml = `<div style="background:#0f0f1a;padding:4px 0;overflow:hidden;white-space:nowrap;border-radius:6px;margin-bottom:6px;border:1px solid #222;"><span style="display:inline-block;animation:dcScroll 10s linear infinite;color:#ff8c00;font-weight:600;font-size:0.85rem;padding-left:16px;">${escapeHtml(m.marquee)}</span></div>`;
+            }
+
+            let textHtml = escapeHtml(m.text || '');
+            const linkMatch = (m.text || '').match(/(https?:\/\/[^\s]+)/);
+            if (linkMatch && m.link) {
+                textHtml = textHtml.replace(linkMatch[1], `<span style="color:#555;font-size:0.75rem;">${linkMatch[1]}</span>`);
+            }
+
+            let imgHtml = '';
+            if (m.img) {
+                imgHtml = `<img src="${m.img}" onclick="window.open(this.src)" style="max-width:100%;max-height:180px;border-radius:10px;margin:4px 0;border:1px solid #333;cursor:pointer;">`;
+            }
+
+            let buttonsHtml = '';
+            if (m.buttons && m.buttons.length > 0) {
+                buttonsHtml = '<div style="display:flex;flex-direction:column;gap:4px;margin:6px 0;">';
+                m.buttons.forEach(btn => {
+                    if (btn.url) {
+                        buttonsHtml += `<a href="${escapeHtml(btn.url)}" target="_blank" style="display:block;background:#ff8c00;border:none;border-radius:10px;padding:8px 14px;text-align:center;text-decoration:none;color:#0b0b0f;font-weight:700;font-size:0.85rem;cursor:pointer;">${escapeHtml(btn.label || '🔗 Перейти')}</a>`;
+                    }
+                });
+                buttonsHtml += '</div>';
+            }
+
+            let frameHtml = '';
+            if (m.link) {
+                frameHtml = `<div style="margin:6px 0 4px 0;border:1px solid #333;border-radius:10px;overflow:hidden;background:#0f0f1a;width:100%;"><iframe src="${m.link}" sandbox="allow-scripts allow-same-origin allow-popups" style="width:100%;height:280px;border:none;display:block;"></iframe></div>`;
+            }
+
+            let hashtagsHtml = '';
+            if (m.hashtags && m.hashtags.length > 0) {
+                hashtagsHtml = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px 0;padding-top:6px;border-top:1px solid #222;">';
+                m.hashtags.forEach(tag => {
+                    hashtagsHtml += `<span style="color:#66aaff;font-size:0.65rem;background:#0f0f1a;padding:0 10px;border-radius:20px;border:1px solid #222;">${escapeHtml(tag)}</span>`;
+                });
+                hashtagsHtml += '</div>';
+            }
+
+            let actionsHtml = `
+                <button onclick="dcLikeMsg('${m.id}')" style="background:#222233;border:1px solid #333349;color:#ccc;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;">👍 ${m.likes || 0}</button>
+                <button onclick="dcReplyMsg('${m.id}','${escapeHtml(m.nick)}')" style="background:#222233;border:1px solid #333349;color:#ccc;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;">💬 ответ</button>
+            `;
+            if (m.nick === currentUser) {
+                actionsHtml += `<button onclick="dcOpenEdit('${m.id}')" style="background:#2a2a3a;border-color:#ff8c00;color:#ff8c00;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">✏️ ред.</button>`;
+            }
+            if (m.nick === currentUser) {
+                actionsHtml += `<button onclick="dcDeleteMsg('${m.id}')" style="background:#4a1a1a;border-color:#6a1a1a;color:#ff6666;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">🗑</button>`;
+            }
+
+            div.innerHTML = `
+                ${marqueeHtml}
+                <div>
+                    <span style="color:#ffaa44;font-weight:700;font-size:0.85rem;">${escapeHtml(m.nick)}</span>
+                    <span style="color:#666;font-size:0.55rem;margin-left:6px;">${m.time || ''}</span>
+                    ${m.edited ? ' <span style="color:#666;font-size:0.5rem;">(ред.)</span>' : ''}
+                </div>
+                <div style="margin:4px 0;word-break:break-word;font-size:0.85rem;line-height:1.4;">${textHtml}</div>
+                ${imgHtml}
+                ${buttonsHtml}
+                ${frameHtml}
+                ${hashtagsHtml}
+                <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">${actionsHtml}</div>
+            `;
+
+            messagesDiv.appendChild(div);
+        }
+
+        // ===== ЛАЙКИ =====
+        window.dcLikeMsg = function(id) {
+            const key = `liked_${id}_${currentUser}`;
+            if (localStorage.getItem(key)) return;
+            msgRef.child(id + '/likes').transaction(v => (v || 0) + 1);
+            localStorage.setItem(key, 'true');
+        };
+
+        window.dcReplyMsg = function(id, nick) {
+            const input = document.getElementById('dcMsgInput');
+            if (input) {
+                input.value = `@${nick} `;
+                input.focus();
+            }
+        };
+
+        window.dcDeleteMsg = function(id) {
+            if (!confirm('Удалить этот пост?')) return;
+            msgRef.child(id).remove();
+        };
+
+        // ===== РЕДАКТИРОВАНИЕ (упрощённое) =====
+        window.dcOpenEdit = function(id) {
+            const newText = prompt('Редактировать текст:', document.querySelector(`[data-id="${id}"]`)?.textContent || '');
+            if (newText !== null) {
+                msgRef.child(id).update({ text: newText, edited: true, editedAt: Date.now() });
+            }
+        };
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'dcMsgInput') {
+                dcSendMessage();
+            }
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        }
+
+        // Стиль для анимации
+        const style = document.createElement('style');
+        style.textContent = `@keyframes dcScroll { 0% { transform:translateX(100%); } 100% { transform:translateX(-100%); } }`;
+        document.head.appendChild(style);
+
+        console.log('💬 Чат загружен для комнаты:', roomId);
     }
 
     // ================================================================
@@ -729,420 +1015,6 @@
             })
             .catch(err => alert('❌ ' + err.message));
     }
-
-    // ================================================================
-    // ======  ВИДЖЕТ С AI  ======
-    // ================================================================
-    (function() {
-        const params = new URLSearchParams(window.location.search);
-        const roomId = params.get('room');
-        const siteId = params.get('site');
-        if (roomId && siteId) {
-            document.body.innerHTML = `
-                <div style="background:#0a0a0a;color:#fff;font-family:system-ui;padding:12px;min-height:100vh;">
-                    <div style="max-width:800px;margin:0 auto;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #222;">
-                            <div style="font-weight:700;font-size:1.2rem;color:#fff;">Deep<span style="color:#1877f2;">Chat</span></div>
-                            <button onclick="location.href='.'" style="background:#2a2a2a;border:none;color:#888;padding:4px 16px;border-radius:40px;cursor:pointer;">← Назад</button>
-                        </div>
-                        <div id="deepchat-widget" style="margin-top:12px;min-height:400px;"></div>
-                    </div>
-                </div>
-                <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"><\/script>
-                <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"><\/script>
-                <script>
-                (function() {
-                    const root = document.getElementById('deepchat-widget');
-                    if (!root) return;
-
-                    const config = {
-                        apiKey: "AIzaSyC81Ow4VPAUcaQGAuJjhtA-OaR8hyqxCtI",
-                        authDomain: "mychatapp-2c141.firebaseapp.com",
-                        databaseURL: "https://mychatapp-2c141-default-rtdb.firebaseio.com",
-                        projectId: "mychatapp-2c141",
-                        storageBucket: "mychatapp-2c141.firebasestorage.app",
-                        messagingSenderId: "857322151793",
-                        appId: "1:857322151793:web:387599e9e6f9cf1454a0d0"
-                    };
-                    firebase.initializeApp(config);
-                    const DB = firebase.database();
-
-                    const SITE_ID = '${siteId}';
-                    const ROOM_ID = '${roomId}';
-                    const USER = '${USER || 'Гость'}';
-
-                    // ================================================================
-                    // ======  БЕСПЛАТНЫЙ AI (FreeTheAi)  ======
-                    // ================================================================
-                    const FREE_AI_KEY = 'sta_80cc0f954dd6566cd0d9e2e4f8ad69a06f10803fdfa90fdc';
-                    const AI_MODEL = 'bbg/moonshotai/Kimi-K2.5'; // Бесплатная модель
-
-                    // ================================================================
-                    // ======  ВИДЖЕТ  ======
-                    // ================================================================
-                    root.innerHTML = \`
-                        <div style="background:#0a0a12;color:#eee;font-family:system-ui;padding:10px;width:100%;min-height:300px;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;">
-                                <span style="color:#ff8c00;font-weight:700;font-size:1.1rem;">🌀 DeepChat AI</span>
-                                <span style="font-size:0.6rem;color:#666;">🤖 AI assistant</span>
-                            </div>
-                            <div style="background:#10101a;border-radius:16px;border:1px solid #262633;overflow:hidden;display:flex;flex-direction:column;height:70vh;margin-top:8px;">
-                                <div id="dcMessages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
-                                <div style="padding:10px 12px;background:#0e0e18;border-top:1px solid #262633;">
-                                    <div style="display:flex;gap:8px;">
-                                        <input type="text" id="dcMsgInput" placeholder="Напиши пост или ссылку..." style="flex:1;padding:10px 16px;background:#181825;border:1px solid #323245;border-radius:40px;color:white;font-size:0.85rem;outline:none;">
-                                        <button onclick="dcSendMessage()" style="background:#ff8c00;border:none;border-radius:40px;padding:0 18px;font-weight:700;color:#0b0b0f;cursor:pointer;">→</button>
-                                    </div>
-                                    <div style="margin-top:6px;">
-                                        <label for="dcFileInput" style="background:#222235;padding:2px 14px;border-radius:40px;font-size:0.65rem;border:1px solid #3e3e55;cursor:pointer;display:inline-block;">📎 фото</label>
-                                        <input type="file" id="dcFileInput" accept="image/*" style="display:none;">
-                                        <div id="dcPreview" style="display:none;align-items:center;gap:8px;background:#181825;padding:2px 12px 2px 2px;border-radius:40px;margin-top:4px;border:1px solid #3a3a50;">
-                                            <img id="dcPreviewImg" style="width:32px;height:32px;border-radius:30px;object-fit:cover;">
-                                            <span id="dcPreviewName" style="font-size:0.65rem;max-width:60px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
-                                            <button onclick="dcRemoveImage()" style="background:#6a1a1a;color:white;border:none;border-radius:30px;padding:0 10px;cursor:pointer;">✕</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    \`;
-
-                    let currentUser = USER;
-                    let editingId = null;
-                    const msgRef = DB.ref('sites/' + SITE_ID + '/rooms/' + ROOM_ID + '/messages');
-
-                    // ===== ОТПРАВКА СООБЩЕНИЯ =====
-                    window.dcSendMessage = function() {
-                        const input = document.getElementById('dcMsgInput');
-                        if (!input) return;
-                        const text = input.value.trim();
-                        const preview = document.getElementById('dcPreview');
-                        const previewImg = document.getElementById('dcPreviewImg');
-                        const pendingImage = preview && preview.style.display === 'flex' ? previewImg.src : null;
-                        if (!text && !pendingImage) return;
-
-                        const data = {
-                            nick: currentUser,
-                            text: text || '📷',
-                            time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
-                            timestamp: Date.now(),
-                            likes: 0,
-                            img: pendingImage || null,
-                            link: null,
-                            marquee: null,
-                            buttons: [],
-                            hashtags: [],
-                            edited: false
-                        };
-
-                        const linkMatch = (text || '').match(/(https?:\\/\\/[^\\s]+)/);
-                        if (linkMatch) data.link = linkMatch[1];
-
-                        msgRef.push(data);
-                        input.value = '';
-                        dcRemoveImage();
-                    };
-
-                    window.dcRemoveImage = function() {
-                        document.getElementById('dcPreview').style.display = 'none';
-                        document.getElementById('dcFileInput').value = '';
-                    };
-
-                    document.getElementById('dcFileInput').addEventListener('change', function(e) {
-                        const file = e.target.files[0];
-                        if (file && file.type.startsWith('image/')) {
-                            if (file.size > 2 * 1024 * 1024) { alert('Максимум 2MB'); return; }
-                            const reader = new FileReader();
-                            reader.onload = function(ev) {
-                                document.getElementById('dcPreviewImg').src = ev.target.result;
-                                document.getElementById('dcPreviewName').textContent = file.name.slice(0, 14);
-                                document.getElementById('dcPreview').style.display = 'flex';
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-
-                    // ===== ПОДПИСКА НА СООБЩЕНИЯ =====
-                    msgRef.orderByChild('timestamp').on('value', snap => {
-                        const messagesDiv = document.getElementById('dcMessages');
-                        if (!messagesDiv) return;
-                        messagesDiv.innerHTML = '';
-                        snap.forEach(s => {
-                            const m = s.val();
-                            m.id = s.key;
-                            renderMessage(m);
-                        });
-                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    });
-
-                    // ===== ОТРИСОВКА СООБЩЕНИЯ =====
-                    function renderMessage(m) {
-                        const messagesDiv = document.getElementById('dcMessages');
-                        if (!messagesDiv) return;
-                        const div = document.createElement('div');
-                        div.style.cssText = 'background:#14141f;border-radius:14px;padding:12px 14px;border:1px solid #2a2a3a;';
-
-                        let marqueeHtml = '';
-                        if (m.marquee) {
-                            marqueeHtml = \`<div style="background:#0f0f1a;padding:4px 0;overflow:hidden;white-space:nowrap;border-radius:6px;margin-bottom:6px;border:1px solid #222;"><span style="display:inline-block;animation:dcScroll 10s linear infinite;color:#ff8c00;font-weight:600;font-size:0.85rem;padding-left:16px;">\${escapeHtml(m.marquee)}</span></div>\`;
-                        }
-
-                        let textHtml = escapeHtml(m.text || '');
-                        const linkMatch = (m.text || '').match(/(https?:\\/\\/[^\\s]+)/);
-                        if (linkMatch && m.link) {
-                            textHtml = textHtml.replace(linkMatch[1], \`<span style="color:#555;font-size:0.75rem;">\${linkMatch[1]}</span>\`);
-                        }
-
-                        let imgHtml = '';
-                        if (m.img) {
-                            imgHtml = \`<img src="\${m.img}" onclick="window.open(this.src)" style="max-width:100%;max-height:180px;border-radius:10px;margin:4px 0;border:1px solid #333;cursor:pointer;">\`;
-                        }
-
-                        let buttonsHtml = '';
-                        if (m.buttons && m.buttons.length > 0) {
-                            buttonsHtml = '<div style="display:flex;flex-direction:column;gap:4px;margin:6px 0;">';
-                            m.buttons.forEach(btn => {
-                                if (btn.url) {
-                                    buttonsHtml += \`<a href="\${escapeHtml(btn.url)}" target="_blank" style="display:block;background:#ff8c00;border:none;border-radius:10px;padding:8px 14px;text-align:center;text-decoration:none;color:#0b0b0f;font-weight:700;font-size:0.85rem;cursor:pointer;">\${escapeHtml(btn.label || '🔗 Перейти')}</a>\`;
-                                }
-                            });
-                            buttonsHtml += '</div>';
-                        }
-
-                        let frameHtml = '';
-                        if (m.link) {
-                            frameHtml = \`<div style="margin:6px 0 4px 0;border:1px solid #333;border-radius:10px;overflow:hidden;background:#0f0f1a;width:100%;"><iframe src="\${m.link}" sandbox="allow-scripts allow-same-origin allow-popups" style="width:100%;height:280px;border:none;display:block;"></iframe></div>\`;
-                        }
-
-                        let hashtagsHtml = '';
-                        if (m.hashtags && m.hashtags.length > 0) {
-                            hashtagsHtml = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px 0;padding-top:6px;border-top:1px solid #222;">';
-                            m.hashtags.forEach(tag => {
-                                hashtagsHtml += \`<span style="color:#66aaff;font-size:0.65rem;background:#0f0f1a;padding:0 10px;border-radius:20px;border:1px solid #222;">\${escapeHtml(tag)}</span>\`;
-                            });
-                            hashtagsHtml += '</div>';
-                        }
-
-                        let actionsHtml = \`
-                            <button onclick="dcLikeMsg('\${m.id}')" style="background:#222233;border:1px solid #333349;color:#ccc;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;">👍 \${m.likes || 0}</button>
-                            <button onclick="dcReplyMsg('\${m.id}','\${escapeHtml(m.nick)}')" style="background:#222233;border:1px solid #333349;color:#ccc;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;">💬 ответ</button>
-                        \`;
-                        if (m.nick === currentUser) {
-                            actionsHtml += \`<button onclick="dcOpenEdit('\${m.id}')" style="background:#2a2a3a;border-color:#ff8c00;color:#ff8c00;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">✏️ ред.</button>\`;
-                        }
-                        if (m.nick === currentUser) {
-                            actionsHtml += \`<button onclick="dcDeleteMsg('\${m.id}')" style="background:#4a1a1a;border-color:#6a1a1a;color:#ff6666;padding:0 12px;border-radius:40px;font-size:0.6rem;cursor:pointer;border:1px solid #333349;">🗑</button>\`;
-                        }
-
-                        div.innerHTML = \`
-                            \${marqueeHtml}
-                            <div>
-                                <span style="color:#ffaa44;font-weight:700;font-size:0.85rem;">\${escapeHtml(m.nick)}</span>
-                                <span style="color:#666;font-size:0.55rem;margin-left:6px;">\${m.time || ''}</span>
-                                \${m.edited ? ' <span style="color:#666;font-size:0.5rem;">(ред.)</span>' : ''}
-                            </div>
-                            <div style="margin:4px 0;word-break:break-word;font-size:0.85rem;line-height:1.4;">\${textHtml}</div>
-                            \${imgHtml}
-                            \${buttonsHtml}
-                            \${frameHtml}
-                            \${hashtagsHtml}
-                            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">\${actionsHtml}</div>
-                        \`;
-                        messagesDiv.appendChild(div);
-                    }
-
-                    // ===== ЛАЙК =====
-                    window.dcLikeMsg = function(id) {
-                        const key = \`liked_\${id}_\${currentUser}\`;
-                        if (localStorage.getItem(key)) return;
-                        msgRef.child(id + '/likes').transaction(v => (v || 0) + 1);
-                        localStorage.setItem(key, 'true');
-                    };
-
-                    // ===== ОТВЕТ =====
-                    window.dcReplyMsg = function(id, nick) {
-                        const input = document.getElementById('dcMsgInput');
-                        if (input) {
-                            input.value = \`@\${nick} \`;
-                            input.focus();
-                        }
-                    };
-
-                    // ===== УДАЛЕНИЕ =====
-                    window.dcDeleteMsg = function(id) {
-                        if (!confirm('Удалить этот пост?')) return;
-                        msgRef.child(id).remove();
-                    };
-
-                    // ===== РЕДАКТИРОВАНИЕ =====
-                    window.dcOpenEdit = function(id) {
-                        editingId = id;
-                        const modal = document.createElement('div');
-                        modal.id = 'dcEditModal';
-                        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;justify-content:center;align-items:center;padding:16px;';
-                        modal.innerHTML = \`
-                            <div style="background:#1a1a2a;border-radius:16px;padding:20px;max-width:500px;width:100%;border:1px solid #333;max-height:90vh;overflow-y:auto;">
-                                <h2 style="color:#ff8c00;font-size:1.1rem;margin-bottom:8px;">✏️ Редактировать</h2>
-                                <input type="text" id="dcEditMarquee" placeholder="Бегущая строка" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;">
-                                <textarea id="dcEditText" placeholder="Текст" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;min-height:50px;resize:vertical;"></textarea>
-                                <input type="url" id="dcEditLink" placeholder="Ссылка (iframe)" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;">
-                                <input type="text" id="dcEditHashtags" placeholder="#hashtags" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid #333;border-radius:8px;color:white;margin-bottom:8px;font-size:0.85rem;">
-                                <div style="margin:6px 0 4px 0;color:#888;font-size:0.7rem;">🔘 Кнопки</div>
-                                <div id="dcEditButtonsContainer"></div>
-                                <button onclick="dcAddButtonField()" style="background:#222;color:#ff8c00;border:1px solid #333;border-radius:30px;padding:4px 14px;cursor:pointer;font-size:0.7rem;margin-top:4px;">➕ Кнопку</button>
-                                <div style="display:flex;gap:8px;margin-top:10px;">
-                                    <button onclick="dcSaveEdit()" style="background:#ff8c00;color:#0b0b0f;border:none;padding:8px;border-radius:40px;font-weight:700;flex:1;cursor:pointer;">💾 Сохранить</button>
-                                    <button onclick="dcCloseEdit()" style="background:#6a1a1a;color:#ff8888;border:none;padding:8px;border-radius:40px;font-weight:700;flex:1;cursor:pointer;">✕ Отмена</button>
-                                </div>
-                                <button onclick="dcDeletePost()" style="background:#6a1a1a;color:#ff8888;border:none;padding:6px;border-radius:40px;margin-top:8px;cursor:pointer;width:100%;font-size:0.8rem;">🗑 Удалить пост</button>
-                            </div>
-                        \`;
-                        document.body.appendChild(modal);
-
-                        msgRef.child(id).once('value', snap => {
-                            const m = snap.val();
-                            if (!m) return;
-                            document.getElementById('dcEditMarquee').value = m.marquee || '';
-                            document.getElementById('dcEditText').value = m.text || '';
-                            document.getElementById('dcEditLink').value = m.link || '';
-                            document.getElementById('dcEditHashtags').value = (m.hashtags || []).join(' ');
-
-                            const container = document.getElementById('dcEditButtonsContainer');
-                            container.innerHTML = '';
-                            const btns = m.buttons || [];
-                            btns.forEach(btn => dcAddButtonField(btn.label, btn.url));
-                            if (btns.length === 0) dcAddButtonField('', '');
-                        });
-                    };
-
-                    window.dcAddButtonField = function(label = '', url = '') {
-                        const container = document.getElementById('dcEditButtonsContainer');
-                        const div = document.createElement('div');
-                        div.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:center;';
-                        div.innerHTML = \`
-                            <input class="dc-btn-label" placeholder="Текст" value="\${escapeHtml(label)}" style="flex:1;padding:6px 10px;background:#0f0f1a;border:1px solid #333;border-radius:6px;color:white;font-size:0.8rem;">
-                            <input class="dc-btn-url" placeholder="Ссылка" value="\${escapeHtml(url)}" style="flex:2;padding:6px 10px;background:#0f0f1a;border:1px solid #333;border-radius:6px;color:white;font-size:0.8rem;">
-                            <button onclick="dcRemoveButtonField(this)" style="background:#4a1a1a;color:#ff6666;border:none;border-radius:30px;padding:2px 10px;cursor:pointer;font-size:0.7rem;">✕</button>
-                        \`;
-                        container.appendChild(div);
-                    };
-
-                    window.dcRemoveButtonField = function(btn) {
-                        const group = btn.parentElement;
-                        if (document.getElementById('dcEditButtonsContainer').children.length > 1) {
-                            group.remove();
-                        } else {
-                            group.querySelector('.dc-btn-label').value = '';
-                            group.querySelector('.dc-btn-url').value = '';
-                        }
-                    };
-
-                    window.dcSaveEdit = function() {
-                        if (!editingId) return;
-
-                        const marquee = document.getElementById('dcEditMarquee').value.trim();
-                        const text = document.getElementById('dcEditText').value.trim();
-                        const link = document.getElementById('dcEditLink').value.trim();
-                        const hashtagsRaw = document.getElementById('dcEditHashtags').value.trim();
-                        const hashtags = hashtagsRaw ? hashtagsRaw.split(/\\s+/).filter(t => t.startsWith('#')) : [];
-
-                        const buttons = [];
-                        document.querySelectorAll('#dcEditButtonsContainer .dc-btn-group').forEach(g => {
-                            const label = g.querySelector('.dc-btn-label').value.trim();
-                            const url = g.querySelector('.dc-btn-url').value.trim();
-                            if (url) buttons.push({ label: label || '🔗 Перейти', url });
-                        });
-
-                        const updates = {
-                            marquee: marquee || null,
-                            text: text || '📝',
-                            link: link || null,
-                            buttons: buttons,
-                            hashtags: hashtags,
-                            edited: true,
-                            editedAt: Date.now()
-                        };
-
-                        msgRef.child(editingId).update(updates);
-                        dcCloseEdit();
-                    };
-
-                    window.dcDeletePost = function() {
-                        if (!editingId) return;
-                        if (confirm('Удалить пост навсегда?')) {
-                            msgRef.child(editingId).remove();
-                            dcCloseEdit();
-                        }
-                    };
-
-                    window.dcCloseEdit = function() {
-                        const modal = document.getElementById('dcEditModal');
-                        if (modal) modal.remove();
-                        editingId = null;
-                    };
-
-                    document.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'dcMsgInput') {
-                            dcSendMessage();
-                        }
-                    });
-
-                    function escapeHtml(str) {
-                        if (!str) return '';
-                        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-                    }
-
-                    // ================================================================
-                    // ======  ПОДКЛЮЧЕНИЕ БЕСПЛАТНОГО AI  ======
-                    // ================================================================
-                    msgRef.on('child_added', async snap => {
-                        const msg = snap.val();
-                        if (msg.nick !== 'AIbot' && !msg.isBotResponse && msg.nick !== currentUser) {
-                            try {
-                                const response = await fetch('https://api.freetheai.xyz/v1/chat/completions', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Authorization': \`Bearer ${FREE_AI_KEY}\`,
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        model: AI_MODEL,
-                                        messages: [
-                                            { role: 'user', content: msg.text }
-                                        ]
-                                    })
-                                });
-
-                                const data = await response.json();
-                                const botReply = data.choices[0].message.content;
-
-                                msgRef.push({
-                                    nick: 'AIbot',
-                                    text: botReply,
-                                    time: new Date().toLocaleTimeString(),
-                                    timestamp: Date.now(),
-                                    likes: 0,
-                                    isBotResponse: true
-                                });
-
-                            } catch (error) {
-                                console.error('AI API error:', error);
-                            }
-                        }
-                    });
-
-                    const style = document.createElement('style');
-                    style.textContent = \`@keyframes dcScroll { 0% { transform:translateX(100%); } 100% { transform:translateX(-100%); } }\`;
-                    document.head.appendChild(style);
-
-                    console.log('💬 Виджет с AI загружен для комнаты:', ROOM_ID);
-                    console.log('🤖 AI модель:', AI_MODEL);
-                })();
-                <\/script>
-            `;
-            return;
-        }
-    })();
 
     // ================================================================
     // ======  ЗАПУСК  ======
